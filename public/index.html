@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Agrisen</title>
+    <style>
+        body { font-family: Arial; text-align: center; background: #f4f6f7; }
+        h1 { color: #2e7d32; }
+        table { margin: auto; margin-top: 20px; border-collapse: collapse; }
+        th, td { padding: 10px 25px; font-size: 18px; }
+        th { background: #e0e0e0; }
+        input {
+            padding: 10px; width: 220px; font-size: 16px; margin-top: 10px;
+            border: 1px solid #999; border-radius: 5px;
+        }
+        button {
+            padding: 10px 30px; border: none; border-radius: 5px;
+            font-size: 18px; margin: 10px; cursor: pointer;
+        }
+        .on { background: #2ecc71; color: white; }
+        .off { background: #e74c3c; color: white; }
+        .card { margin-top: 40px; padding: 20px; }
+    </style>
+</head>
+
+<body>
+
+<h1>Agrisen-X Dashboard</h1>
+
+<h2>3-Phase Voltage & Current</h2>
+<table border="1">
+    <tr>
+        <th>Phase</th>
+        <th>Voltage</th>
+        <th>Current</th>
+    </tr>
+    <tr><td>R</td><td id="rV"></td><td id="rC"></td></tr>
+    <tr><td>Y</td><td id="yV"></td><td id="yC"></td></tr>
+    <tr><td>B</td><td id="bV"></td><td id="bC"></td></tr>
+</table>
+
+<div class="card">
+    <h2>Threshold Setting</h2>
+    <input type="number" id="voltSet" placeholder="Voltage (V)"><br>
+    <input type="number" id="currSet" placeholder="Current (A)"><br>
+    <button class="on" onclick="setThreshold()">SET</button>
+</div>
+
+<hr>
+
+<h2>Motor 1</h2>
+<button class="on" onclick="motorControl(1,'ON')">ON</button>
+<button class="off" onclick="motorControl(1,'OFF')">OFF</button>
+<p id="motor1Status">Motor 1: OFF</p>
+
+<h2>Motor 2</h2>
+<button class="on" onclick="motorControl(2,'ON')">ON</button>
+<button class="off" onclick="motorControl(2,'OFF')">OFF</button>
+<p id="motor2Status">Motor 2: OFF</p>
+
+<script>
+async function loadData() {
+    const res = await fetch("/api/data");
+    const json = await res.json();
+
+    document.getElementById("rV").innerText = json.phases.R.voltage + " V";
+    document.getElementById("rC").innerText = json.phases.R.current + " A";
+
+    document.getElementById("yV").innerText = json.phases.Y.voltage + " V";
+    document.getElementById("yC").innerText = json.phases.Y.current + " A";
+
+    document.getElementById("bV").innerText = json.phases.B.voltage + " V";
+    document.getElementById("bC").innerText = json.phases.B.current + " A";
+
+    document.getElementById("motor1Status").innerText = "Motor 1: " + json.motors.motor1;
+    document.getElementById("motor2Status").innerText = "Motor 2: " + json.motors.motor2;
+}
+
+async function setThreshold() {
+    await fetch("/api/set-threshold", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            voltage: document.getElementById("voltSet").value,
+            current: document.getElementById("currSet").value
+        })
+    });
+    alert("Threshold Updated!");
+}
+
+async function motorControl(motor, status) {
+    await fetch("/api/motor-control", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ motor, status })
+    });
+
+    loadData(); 
+}
+
+setInterval(loadData, 1500);  
+loadData();
+</script>
+
+</body>
+</html>
