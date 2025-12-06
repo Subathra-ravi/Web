@@ -1,16 +1,19 @@
 const express = require("express");
-const app = express();
 const cors = require("cors");
+const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(__dirname + "/../public"));
+app.use(express.static(__dirname + "/../public"));  // Serves index.html
 
+// ------------------------
+// IN-MEMORY DATA
+// ------------------------
 let data = {
   R: { voltage: 231.1, current: 0.04 },
   Y: { voltage: 231.4, current: 0.04 },
   B: { voltage: 96.9, current: 0.0 }
-}; 
+};
 
 let thresholds = {
   voltage: null,
@@ -22,6 +25,11 @@ let motors = {
   motor2: "OFF"
 };
 
+// ------------------------
+// API ROUTES
+// ------------------------
+
+// GET → fetch all readings + thresholds + motor status
 app.get("/api/data", (req, res) => {
   res.json({
     phases: data,
@@ -30,14 +38,20 @@ app.get("/api/data", (req, res) => {
   });
 });
 
+// POST → update threshold values
 app.post("/api/set-threshold", (req, res) => {
   const { voltage, current } = req.body;
+
   thresholds.voltage = voltage;
   thresholds.current = current;
 
-  res.json({ message: "Threshold updated", thresholds });
+  res.json({
+    message: "Threshold updated successfully",
+    thresholds
+  });
 });
 
+// POST → motor control
 app.post("/api/motor-control", (req, res) => {
   const { motor, status } = req.body;
 
@@ -50,6 +64,9 @@ app.post("/api/motor-control", (req, res) => {
   });
 });
 
+// ------------------------
+// START LOCAL SERVER
+// ------------------------
 app.listen(3000, () => {
-  console.log("Server running at http://localhost:3000");
+  console.log("✅ Server running at http://localhost:3000");
 });
