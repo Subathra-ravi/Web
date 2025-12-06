@@ -58,30 +58,28 @@
 <p id="motor2Status">Motor 2: OFF</p>
 
 <script>
+
+const API = "https://web-mzlx.onrender.com";  // your backend
+
 async function loadData() {
-    try {
-        const res = await fetch("/api/data");
-        const json = await res.json();
+    const res = await fetch(`${API}/api/data`);
+    const json = await res.json();
 
-        document.getElementById("rV").innerText = json.phases.R.voltage + " V";
-        document.getElementById("rC").innerText = json.phases.R.current + " A";
+    document.getElementById("rV").innerText = json.phases.R.voltage + " V";
+    document.getElementById("rC").innerText = json.phases.R.current + " A";
 
-        document.getElementById("yV").innerText = json.phases.Y.voltage + " V";
-        document.getElementById("yC").innerText = json.phases.Y.current + " A";
+    document.getElementById("yV").innerText = json.phases.Y.voltage + " V";
+    document.getElementById("yC").innerText = json.phases.Y.current + " A";
 
-        document.getElementById("bV").innerText = json.phases.B.voltage + " V";
-        document.getElementById("bC").innerText = json.phases.B.current + " A";
+    document.getElementById("bV").innerText = json.phases.B.voltage + " V";
+    document.getElementById("bC").innerText = json.phases.B.current + " A";
 
-        document.getElementById("motor1Status").innerText = "Motor 1: " + json.motors.motor1;
-        document.getElementById("motor2Status").innerText = "Motor 2: " + json.motors.motor2;
-    } 
-    catch (e) {
-        console.log("Error loading data", e);
-    }
+    document.getElementById("motor1Status").innerText = "Motor 1: " + json.motors.motor1;
+    document.getElementById("motor2Status").innerText = "Motor 2: " + json.motors.motor2;
 }
 
 async function setThreshold() {
-    await fetch("/api/set-threshold", {
+    await fetch(`${API}/api/set-threshold`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -93,12 +91,11 @@ async function setThreshold() {
 }
 
 async function motorControl(motor, status) {
-    await fetch("/api/motor-control", {
+    await fetch(`${API}/api/motor-control`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ motor, status })
     });
-
     loadData();
 }
 
