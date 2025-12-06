@@ -4,7 +4,8 @@ const cors = require("cors");
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static("public")); 
+app.use(express.static(__dirname + "/../public"));
+
 let data = {
   R: { voltage: 231.1, current: 0.04 },
   Y: { voltage: 231.4, current: 0.04 },
